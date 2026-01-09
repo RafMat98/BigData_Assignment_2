@@ -1,0 +1,28 @@
+# Χρησιμοποιούμε μια ελαφριά έκδοση της Python
+FROM python:3.11-slim
+
+# 1. ΕΓΚΑΤΑΣΤΑΣΗ JAVA & DOS2UNIX
+# Προσθέτουμε το dos2unix για να λύνουμε το πρόβλημα CRLF αυτόματα
+RUN apt-get update && apt-get install -y \
+    default-jre-headless \
+    dos2unix \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. ΡΥΘΜΙΣΗ ΠΕΡΙΒΑΛΛΟΝΤΟΣ
+WORKDIR /app
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+
+# 3. ΕΓΚΑΤΑΣΤΑΣΗ ΒΙΒΛΙΟΘΗΚΩΝ
+COPY ./api/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. ΑΝΤΙΓΡΑΦΗ ΚΩΔΙΚΑ
+COPY ./api /app
+
+# ΔΙΟΡΘΩΣΗ: Μετατροπή σε LF και δικαιώματα εκτέλεσης
+RUN dos2unix entrypoint.sh && chmod +x entrypoint.sh
+
+# 5. ΕΚΤΕΛΕΣΗ
+EXPOSE 5000 8501
+CMD ["./entrypoint.sh"]

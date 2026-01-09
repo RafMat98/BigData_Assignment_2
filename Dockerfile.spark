@@ -1,0 +1,26 @@
+FROM jupyter/pyspark-notebook:latest 
+
+USER root
+
+# Εγκατάσταση εργαλείων συστήματος (αν χρειαστούν)
+RUN apt-get update && apt-get install -y git
+
+WORKDIR /home/jovyan/work
+
+# Αντί για git clone στο build, μπορείς να αντιγράψεις τα αρχεία σου
+# ή να χρησιμοποιήσεις volume. Αν επιμένεις σε git:
+COPY . .
+
+# ΔΙΟΡΘΩΣΗ ΔΙΚΑΙΩΜΑΤΩΝ: Δίνουμε τον φάκελο στον χρήστη jovyan
+RUN chown -R jovyan:users /home/jovyan/work
+
+# Επιστρέφουμε στον κανονικό χρήστη του jupyter
+USER jovyan
+
+# Εγκατάσταση βιβλιοθηκών (ως jovyan πλέον)
+RUN pip install --no-cache-dir pandas matplotlib seaborn scikit-learn
+# Άνοιγμα θυρών: 8888 για Jupyter, 8501 για Streamlit, 4040 για Spark UI
+EXPOSE 8888 4040
+
+# Εντολή εκκίνησης (εδώ ξεκινάει το Jupyter, αλλά μπορείς να το αλλάξεις σε streamlit)
+CMD ["start-notebook.sh", "--NotebookApp.token=''"]

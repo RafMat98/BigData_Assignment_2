@@ -1,0 +1,14 @@
+# Συνδεσιμότητα με Spark (Απαραίτητο για το μοντέλο)
+pyspark==3.5.0
+
+# Backend API
+flask
+flask-cors
+
+# Frontend Interface
+streamlit
+
+# Διαχείριση δεδομένων και αιτημάτων
+pandas
+requests
+numpy

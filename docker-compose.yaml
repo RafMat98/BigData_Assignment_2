@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  spark-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    container_name: spark_container
+    ports:
+      - "8888:8888" # Jupyter Interface
+      - "4040:4040" # Spark UI (για να βλέπεις τα jobs)
+    volumes:
+      - ./spark:/home/jovyan/work # Συγχρονίζει όλο το project
+    networks:
+      - spark_net
+    # Αν θες να τρέχει το script αυτόματα, άσε το command.
+    # Αν θες Jupyter, αφαίρεσέ το ή χρησιμοποίησε το default του image.
+    # command: ["spark-submit", "/home/jovyan/work/telecom_churn_analysis.py"]
+
+  web-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: webapp_container
+    ports:
+      - "5000:5000" # Flask/FastAPI
+      - "8501:8501" # Streamlit
+    volumes:
+      - ./spark:/app/model # Μοιράζονται τον ίδιο φάκελο για να βλέπει το API το μοντέλο
+    depends_on:
+      - spark-analysis
+    networks:
+      - spark_net
+
+networks:
+  spark_net:
+    driver: bridge
